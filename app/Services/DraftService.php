@@ -4,17 +4,57 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Draft;
+use App\Models\AgentSetting;
+use App\Models\AgentStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use OutOfRangeException;
-use PhpParser\Node\Stmt\Break_;
 
 class DraftService
 {
 
+    private function getAgentStatus(array $route)
+    {
+        return AgentSetting::where(function($q) use($route) {
+            for($i=0;$i<config('const.ROUTE_NUM');$i++) {
+                    $q->orWhere('user_id', $route[$i]);
+                }
+            })
+            ->where('is_enabled', true)
+            ->get();
+    }
+
     public function createRecordInDraft(array $route, $request, $filename)
     {
-        return Draft::create([
+        // $agent = AgentSetting::where(function($q) use($route) {
+        //         for($i=0;$i<config('const.ROUTE_NUM');$i++) {
+        //             $q->orWhere('user_id', $route[$i]);
+        //         }
+        //     })
+        //     ->where('is_enabled', true)
+        //     ->get();
+        $agent = $this->getAgentStatus($route);
+
+        $tmpAgentStatus = [];
+        if(count($agent) > 0) {
+            $isAgent = true;
+            foreach($agent as $v) {
+                for($i=0;$i<config('const.ROUTE_NUM');$i++) {
+                    if($v->user_id == $route[$i]) {
+                        $routeNum = $i+1;
+                        $route[$i] = $v->agent_user_id;
+                        $tmpAgentStatus[] = [
+                            'original_user' => $v->user_id,
+                            'agent_user' =>  $route[$i],
+                            'route' => 'route'.$routeNum,
+                        ];
+                    }
+                }
+            }
+        } else {
+            $isAgent = false;
+        }
+
+        $newDraft = Draft::create([
             'user_id' => Auth::user()->id,
             'title' => $request->title,
             'content' => $request->content,
@@ -24,11 +64,46 @@ class DraftService
             'route3' =>$route[2],
             'route4' =>$route[3],
             'route5' =>$route[4],
+            'is_agent' => $isAgent,
         ]);
+
+        if(count($tmpAgentStatus) > 0) {
+            foreach($tmpAgentStatus as $agent) {
+                $agent['draft_id'] = $newDraft->id;
+                AgentStatus::create($agent);
+            }
+        }
+
+        return $newDraft;
     }
 
     public function reSubmitDraft($id, $request, $filename, $route)
     {
+        // 一度代理人設定の情報を消去する
+        AgentStatus::where('draft_id',$id)->delete();
+
+        $agent = $this->getAgentStatus($route);
+
+        if(count($agent) > 0) {
+            $isAgent = true;
+            foreach($agent as $v) {
+                for($i=0;$i<config('const.ROUTE_NUM');$i++) {
+                    if($v->user_id == $route[$i]) {
+                        $routeNum = $i+1;
+                        $route[$i] = $v->agent_user_id;
+                        AgentStatus::create([
+                            'draft_id' => $id,
+                            'original_user' => $v->user_id,
+                            'agent_user' =>  $route[$i],
+                            'route' => 'route'.$routeNum,
+                        ]);
+                    }
+                }
+            }
+        } else {
+            $isAgent = false;
+        }
+
         Draft::find($id)->fill([
             'title' => $request->title,
             'content' => $request->content,
@@ -39,6 +114,7 @@ class DraftService
             'route3' =>$route[2],
             'route4' =>$route[3],
             'route5' =>$route[4],
+            'is_agent' => $isAgent,
         ])
         ->save();
     }
@@ -62,6 +138,17 @@ class DraftService
         }
     }
 
+    public function completedTaskDetail($id)
+    {
+        // 同じ部門に所属していれば閲覧可
+        return Draft::where('id',$id)
+            ->whereHas('user',function($q) {
+                $q->where('department', Auth::user()->department);
+            })
+            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
+            ->get();
+    }
+
     public function discardTaskById($id)
     {
         Draft::destroy($id);
@@ -72,6 +159,7 @@ class DraftService
         return Draft::where('user_id',Auth::user()->id)
             ->where('approved',true)
             ->with('route1User','route2User','route3User','route4User','route5User')
+            ->orderBy('updated_at', 'desc')
             ->get();
     }
 
@@ -82,6 +170,7 @@ class DraftService
                 $q->where('department', Auth::user()->department);
             })
             ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->orderBy('updated_at', 'desc')
             ->get();
     }
 
@@ -92,6 +181,7 @@ class DraftService
                 $q->where('section', Auth::user()->section);
             })
             ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->orderBy('updated_at', 'desc')
             ->get();
     }
 
@@ -132,7 +222,7 @@ class DraftService
                     $q->orWhere('route'.$i, Auth::user()->id);
                 }
             })
-            ->with('route1User','route2User','route3User','route4User','route5User')
+            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->first();
     }
 

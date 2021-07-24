@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Draft;
-use App\Models\User;
 use App\Services\DraftService;
 use App\Services\ProgressService;
 use Illuminate\Support\Facades\Auth;

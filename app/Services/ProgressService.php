@@ -24,7 +24,7 @@ class ProgressService
     {
         return Draft::where('id',$id)
             ->where('user_id',Auth::user()->id)
-            ->with('route1User','route2User','route3User','route4User','route5User')
+            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->get();
     }
 
@@ -54,7 +54,7 @@ class ProgressService
             })
             ->where('approved', false)
             ->where('intercepted', null)
-            ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->with('user','route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->orderBy('updated_at','desc')
             ->get();
 

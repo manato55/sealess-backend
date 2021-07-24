@@ -28,4 +28,9 @@ class CompletedController extends Controller
     {
         $this->draftService->discardTaskById($request->id);
     }
+
+    public function fetchCompletedTaskDetail($id)
+    {
+        return $this->draftService->completedTaskDetail($id);
+    }
 }

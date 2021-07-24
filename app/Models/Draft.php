@@ -22,6 +22,7 @@ class Draft extends Model
         'approved',
         'intercepted',
         'process',
+        'is_agent',
     ];
 
     public function user()
@@ -57,5 +58,35 @@ class Draft extends Model
     public function returnedTask()
     {
         return $this->hasOne('App\Models\ReturnedTask');
+    }
+
+    public function route1Agent()
+    {
+        return $this->hasMany('App\Models\User', 'route1', 'user_id');
+    }
+
+    public function route2Agent()
+    {
+        return $this->hasMany('App\Models\User', 'route2', 'user_id');
+    }
+
+    public function route3Agent()
+    {
+        return $this->hasMany('App\Models\User', 'route3', 'user_id');
+    }
+
+    public function route4Agent()
+    {
+        return $this->hasMany('App\Models\User', 'route4', 'user_id');
+    }
+
+    public function route5Agent()
+    {
+        return $this->hasMany('App\Models\User', 'route5', 'user_id');
+    }
+
+    public function agent_statuses()
+    {
+        return $this->hasMany('App\Models\AgentStatus');
     }
 }

@@ -54,8 +54,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::prefix('completed')->group(function () {
-            Route::get('fetch-task/{choice}', [CompletedController::class, 'fetchCompletedTask']);
             Route::post('discard-task', [CompletedController::class, 'discardTask']);
+            Route::get('fetch-task/{choice}', [CompletedController::class, 'fetchCompletedTask']);
+            Route::get('fetch-detail-task/{id}', [CompletedController::class, 'fetchCompletedTaskDetail']);
         });
 
         Route::prefix('route')->group(function () {
