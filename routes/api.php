@@ -41,8 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('draft')->group(function () {
             Route::post('fetch-ppl', [DraftController::class, 'fetchSectionPpl']);
+            Route::post('search-task', [DraftController::class, 'searchTask']);
             Route::post('register-draft', [DraftController::class, 'registerDraft']);
             Route::get('fetch-unreached-task', [DraftController::class, 'fetchUnreachedTask']);
+            Route::get('get-fiscal-year', [DraftController::class, 'getFiscalYear']);
             Route::get('selected-unreached-task/{id}', [DraftController::class, 'fetchSelectedUnreachedTask']);
         });
 

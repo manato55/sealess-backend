@@ -12,12 +12,18 @@ use App\Http\Requests\DraftRegisterCheck;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use App\Enums\FiscalYear;
+
 
 
 class DraftController extends Controller
 {
 
     const MAXIMUM_ROUTE_NUM = 5;
+    const LAUNCHED_JAP_YEAR = 1;
+    const YEAR_BEFORE_NEW_ERA = 2018;
+    const SEARCH_INDEX = ['task','name'];
 
     public function __construct(
         DraftService $draftSservice,
@@ -111,5 +117,48 @@ class DraftController extends Controller
     public function fetchSelectedUnreachedTask($id)
     {
         return $this->draftService->selectedUnreachedTask($id);
+    }
+
+    public function getFiscalYear()
+    {
+        $now = substr(Carbon::now(),0,7);
+        $rep = str_replace('-','',$now);
+        $maxYear = FiscalYear::getJapCalender($rep);
+
+        for($i=self::LAUNCHED_JAP_YEAR;$i<=$maxYear;$i++) {
+            $japYearRange[] = $i;
+        }
+
+        return $japYearRange;
+    }
+
+    public function searchTask(Request $request)
+    {
+        // 検索項目が増えた場合でも対応できるような実装
+        $cnt = 0;
+        for($i=0;$i<count(self::SEARCH_INDEX);$i++) {
+            $index = self::SEARCH_INDEX[$i];
+            if($request->data[$index] === null) {
+                $cnt++;
+            }
+        }
+        if(!isset($request->data['year'])) {
+            $cnt++;
+        }
+        if(count(self::SEARCH_INDEX)+1 === $cnt) {
+            return response()->json(['error' => '最低一つの項目は入力してください。'], 422);
+        }
+
+        if(isset($request->data['year'])) {
+            $year = $request->data['year'] + self::YEAR_BEFORE_NEW_ERA;
+            $startYear = $year.'-04-01';
+            $endMonth = $year + 1;
+            $endYear =  $endMonth.'-04-01';
+        } else {
+            $startYear = null;
+            $endYear = null;
+        }
+
+        return $this->draftService->search($request,$startYear,$endYear);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\AgentSetting;
 use App\Models\AgentStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DraftService
 {
@@ -25,13 +26,6 @@ class DraftService
 
     public function createRecordInDraft(array $route, $request, $filename)
     {
-        // $agent = AgentSetting::where(function($q) use($route) {
-        //         for($i=0;$i<config('const.ROUTE_NUM');$i++) {
-        //             $q->orWhere('user_id', $route[$i]);
-        //         }
-        //     })
-        //     ->where('is_enabled', true)
-        //     ->get();
         $agent = $this->getAgentStatus($route);
 
         $tmpAgentStatus = [];
@@ -224,6 +218,57 @@ class DraftService
             })
             ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->first();
+    }
+
+    public function search($request, $startYear, $endYear)
+    {
+        $editedOffset = $request->offset*3 - 3;
+
+        $results = Draft::where(function($q) use($request,$startYear,$endYear) {
+                if($request->data['name'] !== null) {
+                    $q->whereHas('user', function($qq) use($request) {
+                        $qq->where('name', $request->data['name']);
+                    });
+                }
+                if($request->data['task'] !== null) {
+                    $q->where('title',$request->data['task']);
+                }
+                if(isset($request->data['year'])) {
+                    $q->where('updated_at','>=', new Carbon($startYear))
+                    ->where('updated_at','<=', new Carbon($endYear));
+                }
+            })
+            // 同じ部に属してい人の案件のみ取得可
+            ->whereHas('user', function($q) {
+                $q->where('department',Auth::user()->department);
+            })
+            ->limit(3)
+            ->offset($editedOffset)
+            ->orderBy('updated_at', 'desc')
+            ->with('user')
+            ->get();
+
+        $length = Draft::where(function($q) use($request,$startYear,$endYear) {
+                if($request->data['name'] !== null) {
+                    $q->whereHas('user', function($qq) use($request) {
+                        $qq->where('name', $request->data['name']);
+                    });
+                }
+                if($request->data['task'] !== null) {
+                    $q->where('title',$request->data['task']);
+                }
+                if(isset($request->data['year'])) {
+                    $q->where('updated_at','>=', new Carbon($startYear))
+                    ->where('updated_at','<=', new Carbon($endYear));
+                }
+            })
+            // 同じ部に属してい人の案件のみ取得可
+            ->whereHas('user', function($q) {
+                $q->where('department',Auth::user()->department);
+            })
+            ->get();
+
+        return [$results,$length];
     }
 
 }
