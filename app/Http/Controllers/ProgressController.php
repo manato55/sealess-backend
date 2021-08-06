@@ -35,7 +35,6 @@ class ProgressController extends Controller
     public function fetchPaginatedTaskInProgress($offset)
     {
         return $this->progressService->paginatedTask($offset);
-
     }
 
     public function fetchDetailTask($id)
@@ -77,7 +76,6 @@ class ProgressController extends Controller
                 Log::error($e->getMessage());
                 return response()->json(['error' => '登録できませんでした。'], 500);
             }
-
         }
     }
 

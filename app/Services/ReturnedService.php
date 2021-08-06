@@ -21,9 +21,15 @@ class ReturnedService
 
     public function returnedDetail($id)
     {
-        return Draft::where('id', $id)
+        $taskDetail = Draft::where('id', $id)
             ->with('returnedTask','route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->first();
+
+        if($taskDetail === null) {
+            return response()->json('error', 404);
+        } else {
+            return $taskDetail;
+        }
     }
 
     public function removeFileFromRecord($request)
