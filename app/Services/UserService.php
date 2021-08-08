@@ -82,10 +82,9 @@ class UserService
     public function passwordReRegisterLink($email)
     {
         $existingEmail = User::where('email',$email)->first();
+
         if($existingEmail === null) {
-            return response()->json([
-                'email' => ['メールアドレスが存在しません。']
-            ], 422);
+            return false;
         }
 
         // PasswordResetテーブルに同じメールアドレスが存在しないようにする

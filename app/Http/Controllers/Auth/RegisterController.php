@@ -87,6 +87,12 @@ class RegisterController extends Controller
     {
         $link = $this->userService->passwordReRegisterLink($request->email);
 
+        if(!$link) {
+            return response()->json([
+                'email' => ['メールアドレスが存在しません。']
+            ], 422);
+        }
+        
         Mail::to($link->email)->send(new ReRegisterPassword(
             config('const.MAIL.RE_REGISTER_PASSWORD'),
             config('const.LINK.RE_REGISTER_PASSWORD_LINK').$link->token,
