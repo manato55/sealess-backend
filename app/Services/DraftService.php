@@ -224,6 +224,7 @@ class DraftService
     {
         $editedOffset = $request->offset*3 - 3;
 
+        // 個別ページ用のレスポンス
         $results = Draft::where(function($q) use($request,$startYear,$endYear) {
                 if($request->data['name'] !== null) {
                     $q->whereHas('user', function($qq) use($request) {
@@ -242,12 +243,14 @@ class DraftService
             ->whereHas('user', function($q) {
                 $q->where('department',Auth::user()->department);
             })
+            ->where('approved',true)
             ->limit(3)
             ->offset($editedOffset)
             ->orderBy('updated_at', 'desc')
             ->with('user')
             ->get();
 
+        // 全件取得
         $length = Draft::where(function($q) use($request,$startYear,$endYear) {
                 if($request->data['name'] !== null) {
                     $q->whereHas('user', function($qq) use($request) {
@@ -266,6 +269,7 @@ class DraftService
             ->whereHas('user', function($q) {
                 $q->where('department',Auth::user()->department);
             })
+            ->where('approved',true)
             ->get();
 
         return [$results,$length];

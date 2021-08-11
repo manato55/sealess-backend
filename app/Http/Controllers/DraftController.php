@@ -134,7 +134,6 @@ class DraftController extends Controller
 
     public function searchTask(Request $request)
     {
-        // 検索項目が増えた場合でも対応できるような実装
         $cnt = 0;
         for($i=0;$i<count(self::SEARCH_INDEX);$i++) {
             $index = self::SEARCH_INDEX[$i];

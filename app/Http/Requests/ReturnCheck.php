@@ -42,7 +42,7 @@ class ReturnCheck extends FormRequest
     public function messages()
     {
         return [
-            'comment' => 'commentを入力してください。',
+            'comment.required' => 'コメントを入力してください。',
         ];
     }
 }

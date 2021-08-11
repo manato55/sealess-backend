@@ -16,5 +16,6 @@ class EmailVerification extends Model
         'name',
         'department',
         'section',
+        'job_title',
     ];
 }

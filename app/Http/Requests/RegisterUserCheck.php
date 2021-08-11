@@ -36,9 +36,17 @@ class RegisterUserCheck extends FormRequest
                 $rules['email'] = ['required', 'email', 'max:100', 'unique:users'];
                 $rules['department'] = 'required';
                 break;
-            case 'officalRegistry':
             case 'passwordReRegister':
                 $rules['password'] = ['required','min:8'];
+                break;
+            case 'officalRegistry':
+                $rules['password'] = ['required','min:8'];
+                break;
+            case 'depAdmin':
+                $rules['name'] = ['required', 'max:30'];
+                $rules['password'] = ['required','min:8'];
+                $rules['email'] = ['required', 'email', 'max:100', 'unique:users'];
+                $rules['department'] = 'required';
                 break;
         }
 
