@@ -152,7 +152,7 @@ class DraftService
     {
         return Draft::where('user_id',Auth::user()->id)
             ->where('approved',true)
-            ->with('route1User','route2User','route3User','route4User','route5User')
+            ->with('user','route1User','route2User','route3User','route4User','route5User')
             ->orderBy('updated_at', 'desc')
             ->get();
     }
