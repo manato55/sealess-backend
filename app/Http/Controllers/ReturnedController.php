@@ -42,7 +42,7 @@ class ReturnedController extends Controller
 
     public function removeTask(Request $request)
     {
-        $this->draftService->removeDraftById($request->id);
+        return $this->draftService->removeDraftById($request->id);
     }
 
 }

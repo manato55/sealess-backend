@@ -24,6 +24,13 @@ class DraftService
             ->get();
     }
 
+    public function sectionPpl($section)
+    {
+        return User::where('section', $section)
+            ->where('id','!=', Auth::user()->id)
+            ->get();
+    }
+
     public function createRecordInDraft(array $route, $request, $filename)
     {
         $agent = $this->getAgentStatus($route);
@@ -115,7 +122,11 @@ class DraftService
 
     public function removeDraftById($id)
     {
-        Draft::destroy($id);
+        $draft = Draft::where('user_id',Auth::user()->id)
+            ->where('approved', true)
+            ->where('id', $id);
+
+        return $draft->delete();
     }
 
     public function completedTask($choice)

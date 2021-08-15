@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Draft;
 use Illuminate\Support\Facades\Auth;
 use App\Services\DraftService;
@@ -19,7 +18,6 @@ use App\Enums\FiscalYear;
 
 class DraftController extends Controller
 {
-
     const MAXIMUM_ROUTE_NUM = 5;
     const LAUNCHED_JAP_YEAR = 1;
     const YEAR_BEFORE_NEW_ERA = 2018;
@@ -36,9 +34,7 @@ class DraftController extends Controller
 
     public function fetchSectionPpl(Request $request)
     {
-        return User::where('section', $request->section)
-            ->where('id','!=', Auth::user()->id)
-            ->get();
+        return $this->draftService->sectionPpl($request->section);
     }
 
     protected function extractFilename($request, $path = null)
@@ -74,11 +70,7 @@ class DraftController extends Controller
         }
 
         // 添付ファイルがない場合を想定
-        if($request->file0 !== null) {
-            $filenames2DB = $this->extractFilename($request);
-        } else {
-            $filenames2DB = null;
-        }
+        $filenames2DB = $request->file0 !== null ? $this->extractFilename($request): null;
 
         // タスクの初回提出時もしくは修正提出時かのフラグにactionプロパティで判定
         if($request->action === null) {
