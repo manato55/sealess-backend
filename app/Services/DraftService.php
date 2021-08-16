@@ -9,6 +9,8 @@ use App\Models\AgentStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class DraftService
 {
@@ -156,7 +158,7 @@ class DraftService
 
     public function discardTaskById($id)
     {
-        Draft::destroy($id);
+        return Draft::destroy($id);
     }
 
     private function completedTaskSortByIndividual()

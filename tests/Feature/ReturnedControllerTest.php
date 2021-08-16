@@ -2,49 +2,51 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\AuthUser;
+use App\Models\ReturnedTask;
+use App\Models\Draft;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
 
 
 class ReturnedControllerTest extends AuthUser
 {
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
     public function test_fertchReturedTask()
     {
-        $this->fetchUser();
-        $responsePost = $this->json('GET', '/api/returned/fetch-task');
-        $this->assertEquals(200, $responsePost->getStatusCode());
+        $response = $this->json('GET', '/api/returned/fetch-task');
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function test_fertchReturedTaskDetail()
     {
-        $this->fetchUser();
-        $responsePost = $this->json('GET', '/api/returned/fetch-detail/34');
-        $this->assertEquals(404, $responsePost->getStatusCode());
+        $draft = ReturnedTask::first();
+        $response = $this->json('GET', "/api/returned/fetch-detail/{$draft->id}");
+        if($response->getStatusCode() === 200 || $response->getStatusCode() === 404) {
+            $this->assertTrue(true);
+        } else {
+            $this->assertTrue(false);
+        }
     }
 
     public function test_removeTask()
     {
-        $this->fetchUser();
+        $draft = Draft::first();
         $request = [
-            'id' => 35,
+            'id' => $draft->id,
         ];
-        $responsePost = $this->json('POST', '/api/returned/remove-task',$request);
-        $this->assertEquals(200, $responsePost->getStatusCode());
+        $response = $this->json('POST', '/api/returned/remove-task',$request);
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function test_removeFile()
     {
-        $this->fetchUser();
+        $draft = Draft::first();
         $request = [
-            'id' => 12,
-            'filename' => 'test'
+            'id' => $draft->id,
+            'filename' => $draft->filename,
         ];
-        $responsePost = $this->json('POST', '/api/returned/remove-file',$request);
-        $this->assertEquals(200, $responsePost->getStatusCode());
+        $response = $this->json('POST', '/api/returned/remove-file',$request);
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }

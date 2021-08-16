@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Draft;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\DraftService;
 use App\Services\ReturnedService;
@@ -13,7 +14,6 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Enums\FiscalYear;
-
 
 
 class DraftController extends Controller
@@ -137,9 +137,10 @@ class DraftController extends Controller
             $cnt++;
         }
         if(count(self::SEARCH_INDEX)+1 === $cnt) {
-            return response()->json(['error' => '最低一つの項目は入力してください。'], 422);
+            return response()->json([
+                'error' => '最低一つの項目は入力してください。'
+            ], 422);
         }
-
         if(isset($request->data['year'])) {
             $year = $request->data['year'] + self::YEAR_BEFORE_NEW_ERA;
             $startYear = $year.'-04-01';

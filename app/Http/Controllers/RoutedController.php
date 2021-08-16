@@ -10,6 +10,8 @@ use App\Http\Requests\RouteRegister;
 
 class RoutedController extends Controller
 {
+    const ROUTE_NUMBER = 5;
+
     public function __construct(
         DraftService $draftSservice,
         RouteService $routeService
@@ -22,12 +24,8 @@ class RoutedController extends Controller
     public function registerRoute(RouteRegister $request)
     {
         $ids = [];
-        for($i=0;$i<=4;$i++) {
-            if(isset($request->data['route'][$i])) {
-                $ids[] = $request->data['route'][$i]['id'];
-            } else {
-                $ids[] = null;
-            }
+        for($i=0;$i<self::ROUTE_NUMBER;$i++) {
+            $ids[] = isset($request->data['route'][$i]) ? $request->data['route'][$i]['id']: null;
         }
         $this->routeService->createRoute($ids, $request->data['label']);
     }

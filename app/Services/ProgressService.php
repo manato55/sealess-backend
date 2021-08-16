@@ -40,7 +40,7 @@ class ProgressService
             ])->save();
     }
 
-    public function findTaskById($id)
+    public function findTaskById($id):  Draft
     {
         return Draft::find($id);
     }

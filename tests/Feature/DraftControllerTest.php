@@ -2,59 +2,74 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+
 use Tests\AuthUser;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Draft;
+use Illuminate\Support\Facades\Auth;
 
 
 class DraftControllerTest extends AuthUser
 {
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
-    public function test_fertchSectionPpl()
+    public function test_fetchSectionPpl()
     {
-        $this->fetchUser();
         $request =  [
-            'section' => '新ソリューション推進課２'
+            'section' => $this->user->section
         ];
         $response = $this->json('POST','/api/draft/fetch-ppl',$request);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($this->user->section, $response->getData()[0]->section);
     }
 
     public function test_searchTask()
     {
-        $this->fetchUser();
+        $draft = Draft::where('user_id','!=',Auth::user()->id)
+            ->whereHas('user', function($q) {
+                $q->where('department', Auth::user()->department);
+            })
+            ->where('approved',true)
+            ->first();
+
         $request =  [
             'data' => [
-                'task' => 'tetwte',
+                'task' => $draft->title,
                 'name' => '',
                 'year' => 3
             ]
         ];
+
         $response = $this->json('POST','/api/draft/search-task',$request);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($draft->title, $response->getData()[0][0]->title);
     }
 
     public function test_unreachedTask()
     {
-        $this->fetchUser();
         $response = $this->json('GET','/api/draft/fetch-unreached-task');
         $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function test_fiscalYear()
     {
-        $this->fetchUser();
         $response = $this->json('GET','/api/draft/get-fiscal-year');
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function test_selectedUnreachedTask()
+    {
+        $response = $this->json('GET','/api/draft/selected-unreached-task/13');
+        if($response->content() === "") {
+            // This test did not perform any assertions
+            return false;
+        } else {
+            $this->assertEquals(200, $response->getStatusCode());
+        }
+    }
+
     public function test_registerDraft()
     {
-        $this->fetchUser();
         Storage::fake('file');
         $file = UploadedFile::fake()->image('avatar.pdf');
 
@@ -77,4 +92,6 @@ class DraftControllerTest extends AuthUser
         $response = $this->json('POST','/api/draft/register-draft',$request);
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+
 }
