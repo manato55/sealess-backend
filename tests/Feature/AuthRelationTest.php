@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\Auth;
 use Tests\AuthUser;
 use Illuminate\Support\Facades\Hash;
 

@@ -99,6 +99,7 @@ class DraftController extends Controller
             $path = 'files/'.Auth::user()->id.'/'.$request->id.'/';
             $this->extractFilename($request,$path);
         }
+        return $path;
     }
 
     public function fetchUnreachedTask()

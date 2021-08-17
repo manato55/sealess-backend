@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Draft;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -17,6 +18,7 @@ class DraftControllerTest extends AuthUser
 
     public function test_fetchSectionPpl()
     {
+        User::factory()->count(10)->create();
         $request =  [
             'section' => $this->user->section
         ];
@@ -74,8 +76,8 @@ class DraftControllerTest extends AuthUser
 
     public function test_registerDraft()
     {
-        Storage::fake('file');
-        $file = UploadedFile::fake()->image('avatar.pdf');
+        Storage::fake('local');
+        $file = UploadedFile::fake()->image('test.pdf');
 
         $arr = [
             'id' => 7,
@@ -92,8 +94,8 @@ class DraftControllerTest extends AuthUser
             'file0' => $file
         ];
 
-        Storage::disk('file')->assertMissing($file->hashName());
         $response = $this->json('POST','/api/draft/register-draft',$request);
+        Storage::disk('local')->assertExists($response->content().$file->name);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
