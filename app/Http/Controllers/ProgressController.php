@@ -14,7 +14,6 @@ use App\Http\Requests\ReturnCheck;
 
 
 
-
 class ProgressController extends Controller
 {
 
@@ -93,7 +92,7 @@ class ProgressController extends Controller
         // 次のルート番号
         $nextRoute = 'route'.$number;
         // 次のルートに関与者がいるか判定
-        // 次の承認者がnullの場合もしくは最後の関与者の場合
+        // 次の承認者がnullの場合,もしくは最後の関与者の場合
         if($task->{$nextRoute} === null || $nextRoute === 'route6') {
             $task->fill(['approved' => true])->save();
         } else {

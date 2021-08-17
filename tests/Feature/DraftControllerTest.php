@@ -26,6 +26,11 @@ class DraftControllerTest extends AuthUser
 
     public function test_searchTask()
     {
+        Draft::factory()->state([
+            'approved' => true,
+        ])
+        ->count(100)
+        ->create();
         $draft = Draft::where('user_id','!=',Auth::user()->id)
             ->whereHas('user', function($q) {
                 $q->where('department', Auth::user()->department);
@@ -61,8 +66,7 @@ class DraftControllerTest extends AuthUser
     {
         $response = $this->json('GET','/api/draft/selected-unreached-task/13');
         if($response->content() === "") {
-            // This test did not perform any assertions
-            return false;
+            $this->assertEquals("", $response->content());
         } else {
             $this->assertEquals(200, $response->getStatusCode());
         }

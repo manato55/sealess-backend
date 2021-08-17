@@ -17,7 +17,7 @@ class AgentSetting extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->hasOne('App\Models\User');
     }
 
     public function agent_user()

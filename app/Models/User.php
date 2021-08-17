@@ -52,7 +52,7 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Draft');
     }
 
-    public function agent_setting()
+    public function agentSetting()
     {
         return $this->hasOne('App\Models\AgentSetting');
     }
@@ -60,5 +60,10 @@ class User extends Authenticatable
     public function passwordReset()
     {
         return $this->hasOne('App\Models\PasswordReset','email', 'email');
+    }
+
+    public function routes()
+    {
+        return $this->hasMany('App\Models\Route');
     }
 }

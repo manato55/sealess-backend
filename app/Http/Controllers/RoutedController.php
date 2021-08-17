@@ -47,7 +47,7 @@ class RoutedController extends Controller
 
     public function agentStatus2False()
     {
-        $this->routeService->toFalse();
+        return $this->routeService->toFalse();
     }
 
     public function agentStatus2True()

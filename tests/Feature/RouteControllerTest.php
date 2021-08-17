@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
 use Tests\AuthUser;
+use App\Models\User;
 use App\Models\Route;
 use App\Models\AgentSetting;
 
@@ -72,6 +73,24 @@ class RouteControllerTest extends AuthUser
             AgentSetting::create([
                 'user_id' => Auth::user()->id,
                 'agent_user_id' => 5,
+                'is_enabled' => true,
+            ]);
+        } else {
+            $exstingRoute->is_enabled = true;
+            $exstingRoute->save();
+        }
+
+        $response = $this->json('POST', '/api/route/agent-status-2false');
+        $this->assertSame(false, $response->getData()->is_enabled);
+    }
+
+    public function test_agentSetting2True()
+    {
+        $exstingRoute = AgentSetting::where('user_id',Auth::user()->id)->first();
+        if($exstingRoute === null) {
+            AgentSetting::create([
+                'user_id' => Auth::user()->id,
+                'agent_user_id' => 5,
                 'is_enabled' => false,
             ]);
         } else {
@@ -79,7 +98,19 @@ class RouteControllerTest extends AuthUser
             $exstingRoute->save();
         }
 
-        $response = $this->json('POST', '/api/route/agent-status-2false');
-        $this->assertEquals(200, $response->getStatusCode());
+        $response = $this->json('POST', '/api/route/agent-status-2true');
+        $this->assertSame(true, $response->getData()->is_enabled);
+    }
+
+    public function test_fetchRegistered()
+    {
+        $response = $this->json('GET', '/api/route/fetch-registered');
+        $this->assertSame(Auth::user()->id, $response->getData()[0]->user_id);
+    }
+
+    public function test_fetchAgentStatus()
+    {
+        $response = $this->json('GET', '/api/route/fetch-agent-status');
+        $this->assertSame(Auth::user()->id, $response->getData()->user_id);
     }
 }

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Tests\AuthUser;
 use App\Models\Draft;
-use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +43,6 @@ class CompletedControllerTest extends AuthUser
 
     public function test_fetchCompletedTaskDetail()
     {
-
         $draft = Draft::where('approved',true)
             ->whereHas('user',function($q) {
                 $q->where('department', Auth::user()->department);

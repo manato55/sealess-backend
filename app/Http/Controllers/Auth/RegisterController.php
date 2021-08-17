@@ -8,7 +8,6 @@ use App\Http\Requests\RegisterUserCheck;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Services\UserService;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -92,7 +91,7 @@ class RegisterController extends Controller
                 'email' => ['メールアドレスが存在しません。']
             ], 422);
         }
-        
+
         Mail::to($link->email)->send(new ReRegisterPassword(
             config('const.MAIL.RE_REGISTER_PASSWORD'),
             config('const.LINK.RE_REGISTER_PASSWORD_LINK').$link->token,

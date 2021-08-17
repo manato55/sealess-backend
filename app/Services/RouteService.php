@@ -61,6 +61,8 @@ class RouteService
         }
         $existingAgentSetting->is_enabled = false;
         $existingAgentSetting->save();
+
+        return $existingAgentSetting;
     }
 
     public function agentStatus()

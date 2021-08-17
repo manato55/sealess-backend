@@ -20,7 +20,6 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-
         // ユーザーの取得
         $user = User::where('email', $request->email)->first();
 
@@ -39,12 +38,6 @@ class LoginController extends Controller
         ], 200);
     }
 
-    /**
-     * Handle a logout request to the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     */
     public function logout()
     {
         $user = User::find(Auth::user()->id);
