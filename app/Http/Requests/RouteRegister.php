@@ -5,6 +5,9 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\contracts\Validation\Validator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class RouteRegister extends FormRequest
 {
@@ -23,10 +26,10 @@ class RouteRegister extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(Request $request)
     {
         return [
-            'data.label' => ['required', 'max:30'],
+            'label' => ['required', 'max:30', 'unique:routes,label,'.Auth::user()->id.',user_id'],
         ];
     }
 
@@ -42,7 +45,9 @@ class RouteRegister extends FormRequest
     public function messages()
     {
         return [
-            'data.label.required' => '登録名を入力してください。',
+            'label.required' => '登録名を入力してください。',
+            'label.unique' => '入力した登録名を既に使用しています。',
+            'label.max' => '登録名は30文字以内にしてください。',
         ];
     }
 

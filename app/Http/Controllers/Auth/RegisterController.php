@@ -110,7 +110,6 @@ class RegisterController extends Controller
             Log::error($e->getMessage());
             return response()->json(['error' => '登録できませんでした。'], 500);
         }
-
     }
 
 }

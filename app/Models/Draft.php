@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
+
 
 class Draft extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, SoftCascadeTrait;
 
     protected $fillable = [
         'user_id',
@@ -25,34 +28,38 @@ class Draft extends Model
         'is_agent',
     ];
 
+    protected $softCascade = [
+        'returnedTask',
+    ];
+
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function route1User()
     {
-        return $this->belongsTo('App\Models\User', 'route1', 'id');
+        return $this->belongsTo('App\Models\User', 'route1', 'id')->withTrashed();
     }
 
     public function route2User()
     {
-        return $this->belongsTo('App\Models\User', 'route2', 'id');
+        return $this->belongsTo('App\Models\User', 'route2', 'id')->withTrashed();
     }
 
     public function route3User()
     {
-        return $this->belongsTo('App\Models\User', 'route3', 'id');
+        return $this->belongsTo('App\Models\User', 'route3', 'id')->withTrashed();
     }
 
     public function route4User()
     {
-        return $this->belongsTo('App\Models\User', 'route4', 'id');
+        return $this->belongsTo('App\Models\User', 'route4', 'id')->withTrashed();
     }
 
     public function route5User()
     {
-        return $this->belongsTo('App\Models\User', 'route5', 'id');
+        return $this->belongsTo('App\Models\User', 'route5', 'id')->withTrashed();
     }
 
     public function returnedTask()

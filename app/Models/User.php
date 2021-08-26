@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use \Askedio\SoftCascade\Traits\SoftCascadeTrait;
 
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, SoftCascadeTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +28,13 @@ class User extends Authenticatable
         'section',
         'job_title',
         'user_type',
+        'company_id',
+        'department_id',
+        'section_id',
+    ];
+
+    protected $softCascade = [
+        'drafts',
     ];
 
     /**
@@ -65,5 +74,10 @@ class User extends Authenticatable
     public function routes()
     {
         return $this->hasMany('App\Models\Route');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo('App\Models\Department');
     }
 }

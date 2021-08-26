@@ -5,6 +5,9 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\contracts\Validation\Validator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 
 class RegisterUserCheck extends FormRequest
@@ -21,7 +24,7 @@ class RegisterUserCheck extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(Request $request)
     {
 
         $route = $this->route()->getName();
@@ -43,10 +46,40 @@ class RegisterUserCheck extends FormRequest
                 $rules['password'] = ['required','min:8'];
                 break;
             case 'depAdmin':
-                $rules['name'] = ['required', 'max:30'];
+                $rules['name'] = [
+                    'required',
+                    'max:30',
+                    Rule::unique('users')->where(function ($q) {
+                        return $q->where('company_id', Auth::user()->company_id);
+                    })
+                ];
                 $rules['password'] = ['required','min:8'];
-                $rules['email'] = ['required', 'email', 'max:100', 'unique:users'];
+                $rules['email'] = [
+                    'required',
+                    'email',
+                    'max:100',
+                    Rule::unique('users')->where(function ($q) {
+                        return $q->where('company_id', Auth::user()->company_id);
+                    })
+                ];
                 $rules['department'] = 'required';
+                break;
+            case 'editDepUserInfo':
+                $rules['name'] = ['required', 'max:30', 'unique:users,name,'.$request->userid.',id'];
+                $rules['email'] = ['required', 'email', 'max:100', 'unique:users,email,'.$request->userid.',id'];
+                break;
+            case 'changeDep':
+                $rules['department'] = 'required';
+                $rules['section'] = 'required';
+                break;
+            case 'changeDepAdminInfo':
+                $rules['name'] = ['required', 'max:30', 'unique:users,name,'.$request->userid.',id'];
+                $rules['email'] = ['required', 'email', 'max:100', 'unique:users,email,'.$request->userid.',id'];
+                $rules['department'] = 'required';
+                break;
+            case 'companyRegister':
+                $rules['name'] = ['required', 'max:30', 'unique:companies'];
+                $rules['email'] = ['required', 'email', 'max:100', 'unique:companies'];
                 break;
         }
 
@@ -66,6 +99,7 @@ class RegisterUserCheck extends FormRequest
     public function messages()
     {
         return [
+            'name.unique' => 'ユーザーネームが既に使用されています。',
             'name.required' => 'ユーザーネームを入力してください。',
             'name.max' => 'ユーザーネームは30文字以内で入力してください。',
             'department.required' => '部を選択してください。',

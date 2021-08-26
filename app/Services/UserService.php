@@ -4,9 +4,12 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Department;
 use App\Models\PasswordReset;
 use App\Models\EmailVerification;
 use App\Enums\UserType;
+use App\Models\JobTitle;
+use App\Models\Section;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -20,9 +23,8 @@ class UserService
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'department' => $request->department,
-            'section' => null,
-            'job_title' => null,
+            'department_id' => $request->department,
+            'company_id' => Auth::user()->company_id,
             'user_type' => UserType::getValue('DepAdmin'),
         ]);
     }
@@ -81,7 +83,9 @@ class UserService
 
     public function passwordReRegisterLink($email)
     {
-        $existingEmail = User::where('email',$email)->first();
+        $existingEmail = User::where('email',$email)
+            ->where('user_type',2)
+            ->first();
 
         if($existingEmail === null) {
             return false;
@@ -112,6 +116,112 @@ class UserService
     public function deletePasswordIssuanceLink($request)
     {
         return PasswordReset::where('token',$request->token)->delete();
+    }
+
+    public function depUsers()
+    {
+        return User::where('department', Auth::user()->department)
+            ->where('id','!=',Auth::user()->id)
+            ->get();
+    }
+
+    public function depUserInfo($request)
+    {
+        $user = User::find($request->userid);
+        $user->name = $request->name;
+        $user->section = $request->section;
+        $user->job_title = $request->jobTitle;
+        $user->save();
+    }
+
+    public function deleteDepUserById($id)
+    {
+        User::find($id)->delete();
+    }
+
+    public function deleteDepAdminUserById($id)
+    {
+        User::find($id)->delete();
+    }
+
+    public function adminUsers()
+    {
+        return User::where('user_type', 1)
+            ->where('company_id', Auth::user()->company_id)
+            ->with('department')
+            ->get();
+    }
+
+    public function noramlUsers($department)
+    {
+        return User::where('user_type', 2)
+            ->where('department',$department)
+            ->get();
+    }
+
+    public function changeDepartment($request)
+    {
+        $user = User::find($request->userid);
+        $user->department = $request->department;
+        $user->section = $request->section;
+        $user->save();
+    }
+
+    public function changeDepAdmin($request)
+    {
+        $user = User::find($request->userid);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->department_id = $request->department;
+        $user->save();
+    }
+
+    public function createNewDepartment($department)
+    {
+        return Department::create([
+            'name' => $department,
+            'company_id' => Auth::user()->company_id,
+        ]);
+    }
+
+    public function createNewSection($request)
+    {
+        return Section::create([
+            'name' => $request->name,
+            'department_id' => $request->department,
+        ]);
+    }
+
+    public function createNewJobTitle($jobTitle)
+    {
+        return JobTitle::create([
+            'name' => $jobTitle,
+            'company_id' => Auth::user()->company_id,
+        ]);
+    }
+
+    public function department()
+    {
+        return Department::where('company_id',Auth::user()->company_id)->get();
+    }
+
+    public function depANDSec()
+    {
+        return Department::where('company_id',Auth::user()->company_id)
+            ->with('sections')
+            ->get();
+    }
+
+    public function deleteDepartment($id)
+    {
+        $dep = Department::where('id', $id)->with('users')->first();
+
+        // 部に紐づいているユーザーがいる場合は削除不可
+        if(count($dep->users) > 0) {
+            return false;
+        } else {
+            $dep->delete();
+        }
     }
 
 }

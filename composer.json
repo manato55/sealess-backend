@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "askedio/laravel-soft-cascade": "^8.1",
         "bensampo/laravel-enum": "^3.4",
         "doctrine/dbal": "^3.1",
         "fideloper/proxy": "^4.4",

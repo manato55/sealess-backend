@@ -82,7 +82,7 @@ class DraftService
 
     public function reSubmitDraft($id, $request, $filename, $route)
     {
-        // 一度代理人設定の情報を消去する
+        // 一度,代理人設定の情報を消去する
         AgentStatus::where('draft_id',$id)->delete();
 
         $agent = $this->getAgentStatus($route);
@@ -107,7 +107,11 @@ class DraftService
             $isAgent = false;
         }
 
-        Draft::find($id)->fill([
+        $draft = Draft::find($id);
+        // 「再提出」か「差戻し者へ提出」によってprocessプロパティの値を変える
+        $process = $request->action === 'reSubmit' ? 'route1': $draft->process;
+
+        $draft->fill([
             'title' => $request->title,
             'content' => $request->content,
             'filename' => $filename,
@@ -118,6 +122,7 @@ class DraftService
             'route4' =>$route[3],
             'route5' =>$route[4],
             'is_agent' => $isAgent,
+            'process' => $process,
         ])
         ->save();
     }
@@ -152,6 +157,7 @@ class DraftService
             ->whereHas('user',function($q) {
                 $q->where('department', Auth::user()->department);
             })
+            ->withTrashed()
             ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
             ->get();
     }
@@ -176,6 +182,7 @@ class DraftService
             ->whereHas('user', function($q) {
                 $q->where('department', Auth::user()->department);
             })
+            ->withTrashed()
             ->with('user','route1User','route2User','route3User','route4User','route5User')
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -187,6 +194,7 @@ class DraftService
             ->whereHas('user', function($q) {
                 $q->where('section', Auth::user()->section);
             })
+            ->withTrashed()
             ->with('user','route1User','route2User','route3User','route4User','route5User')
             ->orderBy('updated_at', 'desc')
             ->get();

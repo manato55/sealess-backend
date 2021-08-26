@@ -28,8 +28,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
-            'department' => $this->faker->randomElement(['経営企画部','開発部','キャリア採用部']),
-            'section' =>  $this->faker->randomElement(['新ソリューション推進課２','新ソリューション推進課1','静岡開発室','総務・労務課']),
+            'department' => '経営企画部',
+            'section' =>  $this->faker->randomElement(['新ソリューション推進課２','新ソリューション推進課１','総務・労務課']),
             'job_title' =>  $this->faker->randomElement(['主任','リーダー','課長','部長']),
             'user_type' =>  2
         ];
