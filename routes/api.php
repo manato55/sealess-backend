@@ -61,11 +61,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('register-company', [CompanyController::class, 'registerCompany'])->name('companyRegister');
             Route::post('change-dep-info', [CompanyController::class, 'changeDepName'])->name('changeDepName');
             Route::post('change-sec-info', [CompanyController::class, 'changeSecName'])->name('changeSecName');
-            Route::delete('delete-sec/{id}', [CompanyController::class, 'deleteSection'])->name('deleteSection');
+            Route::post('change-job-title', [CompanyController::class, 'changeJobTitle'])->name('changeJobTitle');
+            Route::delete('delete-sec/{id}', [CompanyController::class, 'deleteSection']);
+            Route::delete('delete-job-title/{id}', [CompanyController::class, 'deleteJobTitle'])->name('deleteJobTitle');
+            Route::get('fetch-job-title', [CompanyController::class, 'fetchJobTitle']);
+            Route::get('fetch-sections/{id}', [CompanyController::class, 'fetchSections']);
         });
 
         Route::prefix('draft')->group(function () {
-            Route::post('fetch-ppl', [DraftController::class, 'fetchSectionPpl']);
+            Route::get('fetch-ppl/{id}', [DraftController::class, 'fetchSectionPpl']);
             Route::post('search-task', [DraftController::class, 'searchTask']);
             Route::post('register-draft', [DraftController::class, 'registerDraft']);
             Route::get('fetch-unreached-task', [DraftController::class, 'fetchUnreachedTask']);

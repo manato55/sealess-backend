@@ -29,6 +29,13 @@ class UserService
         ]);
     }
 
+    public function myInfo()
+    {
+        return User::where('id',Auth::user()->id)
+            ->with('section','department','jobTitle')
+            ->first();
+    }
+
     public function registerEmail($request)
     {
         // 同じメールアドレスがテーブル上にあるのを避ける
@@ -37,9 +44,9 @@ class UserService
         $newVerification = EmailVerification::create([
             'email' => $request->email,
             'name' => $request->name,
-            'department' => $request->department,
-            'section' => $request->section,
-            'job_title' => $request->jobTitle,
+            'department_id' => $request->department,
+            'section_id' => $request->section,
+            'job_title_id' => $request->jobTitle,
             'token' => Str::random(50),
             'expired_at' => Carbon::now()->addHours(5),
         ]);
@@ -63,16 +70,19 @@ class UserService
 
     public function officialRegistry($request)
     {
-        $existingRecord = EmailVerification::where('token',$request->token)->first();
+        $existingRecord = EmailVerification::where('token',$request->token)
+            ->with('department')
+            ->first();
 
         $user = User::create([
             'name' => $existingRecord->name,
             'email' => $existingRecord->email,
-            'department' => $existingRecord->department,
-            'section' => $existingRecord->section,
-            'job_title' => $existingRecord->job_title,
+            'department_id' => $existingRecord->department_id,
+            'section_id' => $existingRecord->section_id,
+            'job_title_id' => $existingRecord->job_title_id,
             'password' => Hash::make($request->password),
             'user_type' => UserType::getValue('OrdinaryUser'),
+            'company_id' => $existingRecord->department->company_id,
         ]);
 
         // userの登録に成功したらEmailVefificationのレコードは削除
@@ -120,8 +130,10 @@ class UserService
 
     public function depUsers()
     {
-        return User::where('department', Auth::user()->department)
+        return User::where('department_id', Auth::user()->department_id)
             ->where('id','!=',Auth::user()->id)
+            ->where('user_type', 2)
+            ->with('section','jobTitle')
             ->get();
     }
 
@@ -129,8 +141,8 @@ class UserService
     {
         $user = User::find($request->userid);
         $user->name = $request->name;
-        $user->section = $request->section;
-        $user->job_title = $request->jobTitle;
+        $user->section_id = $request->section;
+        $user->job_title_id = $request->jobTitle;
         $user->save();
     }
 
@@ -155,15 +167,16 @@ class UserService
     public function noramlUsers($department)
     {
         return User::where('user_type', 2)
-            ->where('department',$department)
+            ->where('department_id',$department)
+            ->with('department', 'section')
             ->get();
     }
 
     public function changeDepartment($request)
     {
         $user = User::find($request->userid);
-        $user->department = $request->department;
-        $user->section = $request->section;
+        $user->department_id = $request->department;
+        $user->section_id = $request->section;
         $user->save();
     }
 

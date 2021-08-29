@@ -32,9 +32,9 @@ class DraftController extends Controller
         $this->returnedService = $returnedService;
     }
 
-    public function fetchSectionPpl(Request $request)
+    public function fetchSectionPpl($id)
     {
-        return $this->draftService->sectionPpl($request->section);
+        return $this->draftService->sectionPpl($id);
     }
 
     protected function extractFilename($request, $path = null)

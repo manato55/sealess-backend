@@ -79,6 +79,16 @@ class CompanyController extends Controller
         return $this->companyService->secName($request);
     }
 
+    public function changeJobTitle(Company $request)
+    {
+        return $this->companyService->editJobTitle($request);
+    }
+
+    public function fetchJobTitle()
+    {
+        return $this->companyService->jobTitle();
+    }
+
     public function deleteSection($id)
     {
         if($this->companyService->deleteSec($id) === false) {
@@ -88,5 +98,31 @@ class CompanyController extends Controller
         } else {
             return true;
         }
+    }
+
+    public function deleteJobTitle($id)
+    {
+        if($id === "undefined") {
+            return response()->json([
+                'errors' => [
+                    'jobTitle'=> '役職を選択してください。'
+                ]
+            ], 422);
+        }
+
+        if($this->companyService->removeJobTitle($id) === false) {
+            return response()->json([
+                'errors' => [
+                    'jobTitle'=> 'この役職に紐づいているユーザがいるため削除できません。'
+                ]
+            ], 422);
+        } else {
+            return true;
+        }
+    }
+
+    public function fetchSections($id)
+    {
+        return $this->companyService->fetchSectionsById($id);
     }
 }

@@ -24,7 +24,26 @@ class ProgressService
     {
         return Draft::where('id',$id)
             ->where('user_id',Auth::user()->id)
-            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
+            ->with(
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->get();
     }
 

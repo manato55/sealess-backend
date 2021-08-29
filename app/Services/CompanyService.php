@@ -6,10 +6,13 @@ use App\Models\Company;
 use App\Models\User;
 use App\Models\AdminEmailVerification;
 use App\Models\Department;
+use App\Models\JobTitle;
 use App\Models\Section;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class CompanyService
@@ -99,6 +102,18 @@ class CompanyService
         $sec->save();
     }
 
+    public function jobTitle()
+    {
+        return JobTitle::where('company_id',Auth::user()->company_id)->get();
+    }
+
+    public function editJobTitle($requset)
+    {
+        $jobTitle = JobTitle::find($requset->jobTitle);
+        $jobTitle->name = $requset->name;
+        $jobTitle->save();
+    }
+
     public function deleteSec($id)
     {
         $sec = Section::where('id', $id)->with('users')->first();
@@ -109,6 +124,23 @@ class CompanyService
         } else {
             $sec->delete();
         }
+    }
+
+    public function removeJobTitle($id)
+    {
+        $jobTitle = JobTitle::where('id', $id)->with('users')->first();
+
+        // 部に紐づいているユーザーがいる場合は削除不可
+        if(count($jobTitle->users) > 0) {
+            return false;
+        } else {
+            $jobTitle->delete();
+        }
+    }
+
+    public function fetchSectionsById($id)
+    {
+        return Section::where('department_id', $id)->get();
     }
 
 }

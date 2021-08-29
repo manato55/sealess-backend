@@ -31,6 +31,7 @@ class User extends Authenticatable
         'company_id',
         'department_id',
         'section_id',
+        'job_title_id',
     ];
 
     protected $softCascade = [
@@ -79,5 +80,15 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo('App\Models\Department');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo('App\Models\Section');
+    }
+
+    public function jobTitle()
+    {
+        return $this->belongsTo('App\Models\JobTitle');
     }
 }

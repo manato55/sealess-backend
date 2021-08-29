@@ -22,7 +22,7 @@ class UserController extends Controller
     }
 
     public function me(){
-        return Auth::user();
+        return $this->userService->myInfo();
     }
 
     public function fetchDepUsers()

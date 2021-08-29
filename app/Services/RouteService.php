@@ -27,7 +27,23 @@ class RouteService
     public function registeredRoute()
     {
         return Route::where('user_id',Auth::user()->id)
-            ->with('route1User','route2User','route3User','route4User','route5User')
+            ->with(
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                )
             ->get();
     }
 

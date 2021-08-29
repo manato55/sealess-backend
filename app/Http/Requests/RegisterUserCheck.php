@@ -65,7 +65,13 @@ class RegisterUserCheck extends FormRequest
                 $rules['department'] = 'required';
                 break;
             case 'editDepUserInfo':
-                $rules['name'] = ['required', 'max:30', 'unique:users,name,'.$request->userid.',id'];
+                $rules['name'] = [
+                    'required',
+                    'max:30',
+                    Rule::unique('users')->where(function ($q) {
+                        return $q->where('company_id', Auth::user()->company_id);
+                    })
+                ];
                 $rules['email'] = ['required', 'email', 'max:100', 'unique:users,email,'.$request->userid.',id'];
                 break;
             case 'changeDep':

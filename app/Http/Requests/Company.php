@@ -94,6 +94,16 @@ class Company extends FormRequest
                     })
                 ];
                 break;
+            case 'changeJobTitle':
+                $rules['jobTitle'] = ['required'];
+                $rules['name'] = [
+                    'required',
+                    'max:30',
+                    Rule::unique('job_titles')->where(function ($q) {
+                        return $q->where('company_id',  Auth::user()->company_id);
+                    })
+                ];
+                break;
         }
 
         return $rules;
@@ -115,6 +125,7 @@ class Company extends FormRequest
             'name.required' => "{$this->label}を入力してください。",
             'name.max' => "{$this->label}は30文字以内で入力してください。",
             'department.required' => '部を選択してください。',
+            'jobTitle.required' => '役職を選択してください。',
             'email.required' => 'メールアドレスを入力してください。',
             'email.unique' => 'メールアドレスが既に使用されています。',
             'email.email' => 'メールアドレス以外が入力されています。',

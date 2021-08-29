@@ -26,10 +26,11 @@ class DraftService
             ->get();
     }
 
-    public function sectionPpl($section)
+    public function sectionPpl($id)
     {
-        return User::where('section', $section)
+        return User::where('section_id', $id)
             ->where('id','!=', Auth::user()->id)
+            ->with('section','department')
             ->get();
     }
 

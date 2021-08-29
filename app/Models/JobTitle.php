@@ -13,4 +13,9 @@ class JobTitle extends Model
         'company_id',
         'name',
     ];
+
+    public function users()
+    {
+        return $this->hasMany('App\Models\User');
+    }
 }

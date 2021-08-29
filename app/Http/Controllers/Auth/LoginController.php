@@ -23,6 +23,7 @@ class LoginController extends Controller
         // ユーザーの取得
         $user = User::where('email', $request->email)
             ->where('is_in_use',true)
+            ->with('department','section')
             ->first();
 
         if(!$user) {
