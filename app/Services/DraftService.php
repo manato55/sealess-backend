@@ -156,10 +156,29 @@ class DraftService
         // 同じ部門に所属していれば閲覧可
         return Draft::where('id',$id)
             ->whereHas('user',function($q) {
-                $q->where('department', Auth::user()->department);
+                $q->where('department_id', Auth::user()->department_id);
             })
             ->withTrashed()
-            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
+            ->with(
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->get();
     }
 
@@ -172,7 +191,27 @@ class DraftService
     {
         return Draft::where('user_id',Auth::user()->id)
             ->where('approved',true)
-            ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->with(
+                'user',
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->orderBy('updated_at', 'desc')
             ->get();
     }
@@ -181,10 +220,29 @@ class DraftService
     {
         return Draft::where('approved',true)
             ->whereHas('user', function($q) {
-                $q->where('department', Auth::user()->department);
+                $q->where('department_id', Auth::user()->department_id);
             })
             ->withTrashed()
-            ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->with(
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->orderBy('updated_at', 'desc')
             ->get();
     }
@@ -193,10 +251,27 @@ class DraftService
     {
         return Draft::where('approved',true)
             ->whereHas('user', function($q) {
-                $q->where('section', Auth::user()->section);
+                $q->where('section_id', Auth::user()->section_id);
             })
             ->withTrashed()
-            ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->with(
+                'user',
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                )
             ->orderBy('updated_at', 'desc')
             ->get();
     }
@@ -211,7 +286,27 @@ class DraftService
             })
             ->where('approved', false)
             ->where('intercepted', null)
-            ->with('user','route1User','route2User','route3User','route4User','route5User')
+            ->with(
+                'user',
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->orderBy('updated_at','desc')
             ->get();
 
@@ -238,7 +333,26 @@ class DraftService
                     $q->orWhere('route'.$i, Auth::user()->id);
                 }
             })
-            ->with('route1User','route2User','route3User','route4User','route5User','agent_statuses.user')
+            ->with(
+                'route1User',
+                'route1User.department',
+                'route1User.section',
+                'route2User',
+                'route2User.department',
+                'route2User.section',
+                'route3User',
+                'route3User.department',
+                'route3User.section',
+                'route4User',
+                'route4User.department',
+                'route4User.section',
+                'route5User',
+                'route5User.department',
+                'route5User.section',
+                'agent_statuses.user',
+                'agent_statuses.user.department',
+                'agent_statuses.user.section'
+                )
             ->first();
     }
 
@@ -263,7 +377,7 @@ class DraftService
             })
             // 同じ部に属してい人の案件のみ取得可
             ->whereHas('user', function($q) {
-                $q->where('department',Auth::user()->department);
+                $q->where('department_id',Auth::user()->department_id);
             })
             ->where('approved',true)
             ->limit(3)
@@ -289,7 +403,7 @@ class DraftService
             })
             // 同じ部に属してい人の案件のみ取得可
             ->whereHas('user', function($q) {
-                $q->where('department',Auth::user()->department);
+                $q->where('department_id',Auth::user()->department_id);
             })
             ->where('approved',true)
             ->get();

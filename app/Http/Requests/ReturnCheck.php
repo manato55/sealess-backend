@@ -32,7 +32,7 @@ class ReturnCheck extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        $response['error']  = $validator->errors()->toArray();
+        $response['errors']  = $validator->errors()->toArray();
 
         throw new HttpResponseException(
             response()->json( $response, 422 )

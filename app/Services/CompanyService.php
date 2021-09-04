@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\UserType;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\AdminEmailVerification;
 use App\Models\Department;
+use App\Models\EmailVerification;
 use App\Models\JobTitle;
 use App\Models\Section;
 use Carbon\Carbon;
@@ -114,6 +116,18 @@ class CompanyService
         $jobTitle->save();
     }
 
+    public function deleteDepartment($id)
+    {
+        $dep = Department::where('id', $id)->with('users')->first();
+
+        // 部に紐づいているユーザーがいる場合は削除不可
+        if(count($dep->users) > 0) {
+            return false;
+        } else {
+            $dep->delete();
+        }
+    }
+
     public function deleteSec($id)
     {
         $sec = Section::where('id', $id)->with('users')->first();
@@ -142,5 +156,59 @@ class CompanyService
     {
         return Section::where('department_id', $id)->get();
     }
+
+    public function changeDepAdmin($request)
+    {
+        $user = User::find($request->userid);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->department_id = $request->department;
+        $user->save();
+    }
+
+    public function departmentAdmin($request)
+    {
+        return User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'department_id' => $request->department,
+            'company_id' => Auth::user()->company_id,
+            'user_type' => UserType::getValue('DepAdmin'),
+        ]);
+    }
+
+    public function registerEmail($request)
+    {
+        // 同じメールアドレスがテーブル上にあるのを避ける
+        EmailVerification::where('email', $request->email)->delete();
+
+        $newVerification = EmailVerification::create([
+            'email' => $request->email,
+            'name' => $request->name,
+            'department_id' => $request->department,
+            'section_id' => $request->section,
+            'job_title_id' => $request->jobTitle,
+            'token' => Str::random(50),
+            'expired_at' => Carbon::now()->addHours(5),
+        ]);
+
+        return [
+            $newVerification->email,
+            $newVerification->expired_at,
+            $newVerification->token,
+        ];
+    }
+
+
+    public function normalUserInfo($request)
+    {
+        $user = User::find($request->userid);
+        $user->name = $request->name;
+        $user->section_id = $request->section;
+        $user->job_title_id = $request->jobTitle;
+        $user->save();
+    }
+
 
 }

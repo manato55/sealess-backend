@@ -35,9 +35,9 @@ class RoutedController extends Controller
         return $this->routeService->registeredRoute();
     }
 
-    public function removeRegisteredRoute(Request $request)
+    public function removeRegisteredRoute(int $id)
     {
-        $this->routeService->removeRoute($request->id);
+        $this->routeService->removeRoute($id);
     }
 
     public function agentSetting(Request $request)

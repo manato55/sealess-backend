@@ -22,17 +22,17 @@ class UserController extends Controller
     }
 
     public function me(){
-        return $this->userService->myInfo();
+        if(Auth::user()->user_type === 99) {
+            return $this->userService->ownerInfo();
+        } else {
+            return $this->userService->myInfo();
+        }
+
     }
 
     public function fetchDepUsers()
     {
         return $this->userService->depUsers();
-    }
-
-    public function editDepUserInfo(RegisterUserCheck $request)
-    {
-        return $this->userService->depUserInfo($request);
     }
 
     public function deleteDepUser($id)
@@ -53,11 +53,6 @@ class UserController extends Controller
     public function changeDepartment(RegisterUserCheck $request)
     {
         return $this->userService->changeDepartment($request);
-    }
-
-    public function changeDepAdminInfo(RegisterUserCheck $request)
-    {
-        return $this->userService->changeDepAdmin($request);
     }
 
     public function deleteDepAdminUser($id)
@@ -88,16 +83,5 @@ class UserController extends Controller
     public function fetchDepartmentANDSection()
     {
         return $this->userService->depANDSec();
-    }
-
-    public function deleteDep($id)
-    {
-        if($this->userService->deleteDepartment($id) === false) {
-            return response()->json([
-                'error' => 'この部に紐づいているユーザがいるため削除できません。'
-            ], 422);
-        } else {
-            return true;
-        }
     }
 }

@@ -40,9 +40,9 @@ class ReturnedController extends Controller
         $this->returnedService->removeFileFromRecord($request);
     }
 
-    public function removeTask(Request $request)
+    public function removeTask($id)
     {
-        return $this->draftService->removeDraftById($request->id);
+        return $this->draftService->removeDraftById($id);
     }
 
 }

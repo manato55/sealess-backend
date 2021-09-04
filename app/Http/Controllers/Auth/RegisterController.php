@@ -15,6 +15,7 @@ use App\Mail\RegisterMail;
 use App\Mail\ReRegisterPassword;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 
 
@@ -50,26 +51,14 @@ class RegisterController extends Controller
         return $user;
     }
 
-    public function registerDepAdmin(RegisterUserCheck $request)
-    {
-        $this->userService->departmentAdmin($request);
-    }
-
-    public function sendRegisterEmail(RegisterUserCheck $request)
-    {
-        $verification = $this->userService->registerEmail($request);
-
-        Mail::to($verification[0])->send(new RegisterMail(
-            config('const.MAIL.REGISTER_MAIL'),
-            config('const.LINK.REGISTER_LINK').$verification[2],
-            $verification[1],
-            'registerEmail'
-        ));
-    }
-
     public function tokenCheck($token)
     {
-        return $this->userService->token($token);
+        $tokenChecker =  $this->userService->token($token);
+        if($tokenChecker) {
+            return $tokenChecker;
+        } else {
+            throw new HttpResponseException(response()->json(null, 404));
+        }
     }
 
     public function passwordTokenCheck($token)
@@ -87,9 +76,13 @@ class RegisterController extends Controller
         $link = $this->userService->passwordReRegisterLink($request->email);
 
         if(!$link) {
-            return response()->json([
-                'email' => ['メールアドレスが存在しません。']
-            ], 422);
+            throw new HttpResponseException(
+                response()->json([
+                    'errors'=> [
+                        'メールアドレスが存在しません。'
+                    ]
+                ], 422 )
+            );
         }
 
         Mail::to($link->email)->send(new ReRegisterPassword(

@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\CompanyService;
 use App\Http\Requests\Company;
+use App\Http\Requests\RegisterUserCheck;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegisterMail;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 
 
@@ -44,9 +46,14 @@ class CompanyController extends Controller
         }
     }
 
-    public function tokenCheck($token)
+    public function adminTokenCheck($token)
     {
-        return $this->companyService->token($token);
+        $tokenChecker = $this->companyService->token($token);
+        if($tokenChecker) {
+            return $tokenChecker;
+        } else {
+            throw new HttpResponseException(response()->json(null, 404));
+        }
     }
 
     public function officialAdminRegistry(Company $request)
@@ -89,6 +96,17 @@ class CompanyController extends Controller
         return $this->companyService->jobTitle();
     }
 
+    public function deleteDep($id)
+    {
+        if($this->companyService->deleteDepartment($id) === false) {
+            return response()->json([
+                'error' => 'この部に紐づいているユーザがいるため削除できません。'
+            ], 422);
+        } else {
+            return true;
+        }
+    }
+
     public function deleteSection($id)
     {
         if($this->companyService->deleteSec($id) === false) {
@@ -124,5 +142,32 @@ class CompanyController extends Controller
     public function fetchSections($id)
     {
         return $this->companyService->fetchSectionsById($id);
+    }
+
+    public function changeDepAdminInfo(RegisterUserCheck $request)
+    {
+        return $this->companyService->changeDepAdmin($request);
+    }
+
+    public function registerDepAdmin(RegisterUserCheck $request)
+    {
+        $this->companyService->departmentAdmin($request);
+    }
+
+    public function sendRegisterEmail(RegisterUserCheck $request)
+    {
+        $verification = $this->companyService->registerEmail($request);
+
+        Mail::to($verification[0])->send(new RegisterMail(
+            config('const.MAIL.REGISTER_MAIL'),
+            config('const.LINK.REGISTER_LINK').$verification[2],
+            $verification[1],
+            'registerEmail'
+        ));
+    }
+
+    public function editNormalUserInfo(RegisterUserCheck $request)
+    {
+        return $this->companyService->normalUserInfo($request);
     }
 }

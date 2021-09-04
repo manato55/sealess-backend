@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\contracts\Validation\Validator;
@@ -29,13 +30,19 @@ class RouteRegister extends FormRequest
     public function rules(Request $request)
     {
         return [
-            'label' => ['required', 'max:30', 'unique:routes,label,'.Auth::user()->id.',user_id'],
+            'label' => [
+                'required',
+                'max:30',
+                Rule::unique('routes')->where(function ($q) {
+                    return $q->where('user_id', Auth::user()->id);
+                })
+            ],
         ];
     }
 
     protected function failedValidation(Validator $validator)
     {
-        $response['error']  = $validator->errors()->toArray();
+        $response['errors']  = $validator->errors()->toArray();
 
         throw new HttpResponseException(
             response()->json( $response, 422 )

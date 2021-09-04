@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Draft;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\DraftService;
 use App\Services\ReturnedService;
@@ -14,7 +13,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Enums\FiscalYear;
-
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DraftController extends Controller
 {
@@ -109,7 +108,12 @@ class DraftController extends Controller
 
     public function fetchSelectedUnreachedTask($id)
     {
-        return $this->draftService->selectedUnreachedTask($id);
+        $task = $this->draftService->selectedUnreachedTask($id);
+        if($task === null) {
+            throw new HttpResponseException(response()->json(null, 404));
+        } else {
+            return $task;
+        }
     }
 
     public function getFiscalYear()
@@ -138,9 +142,13 @@ class DraftController extends Controller
             $cnt++;
         }
         if(count(self::SEARCH_INDEX)+1 === $cnt) {
-            return response()->json([
-                'error' => '最低一つの項目は入力してください。'
-            ], 422);
+            throw new HttpResponseException(
+                response()->json([
+                    'errors'=> [
+                        '最低一つの項目は入力してください。'
+                    ]
+                ], 422 )
+            );
         }
         if(isset($request->data['year'])) {
             $year = $request->data['year'] + self::YEAR_BEFORE_NEW_ERA;

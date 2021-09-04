@@ -9,6 +9,7 @@ use App\Models\PasswordReset;
 use App\Models\EmailVerification;
 use App\Enums\UserType;
 use App\Models\JobTitle;
+use App\Models\Owner;
 use App\Models\Section;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -17,18 +18,6 @@ use Illuminate\Support\Str;
 class UserService
 {
 
-    public function departmentAdmin($request)
-    {
-        return User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'department_id' => $request->department,
-            'company_id' => Auth::user()->company_id,
-            'user_type' => UserType::getValue('DepAdmin'),
-        ]);
-    }
-
     public function myInfo()
     {
         return User::where('id',Auth::user()->id)
@@ -36,26 +25,9 @@ class UserService
             ->first();
     }
 
-    public function registerEmail($request)
+    public function ownerInfo()
     {
-        // 同じメールアドレスがテーブル上にあるのを避ける
-        EmailVerification::where('email', $request->email)->delete();
-
-        $newVerification = EmailVerification::create([
-            'email' => $request->email,
-            'name' => $request->name,
-            'department_id' => $request->department,
-            'section_id' => $request->section,
-            'job_title_id' => $request->jobTitle,
-            'token' => Str::random(50),
-            'expired_at' => Carbon::now()->addHours(5),
-        ]);
-
-        return [
-            $newVerification->email,
-            $newVerification->expired_at,
-            $newVerification->token,
-        ];
+        return Owner::find(Auth::user()->id);
     }
 
     public function token($token)
@@ -93,9 +65,7 @@ class UserService
 
     public function passwordReRegisterLink($email)
     {
-        $existingEmail = User::where('email',$email)
-            ->where('user_type',2)
-            ->first();
+        $existingEmail = User::where('email',$email)->first();
 
         if($existingEmail === null) {
             return false;
@@ -137,15 +107,6 @@ class UserService
             ->get();
     }
 
-    public function depUserInfo($request)
-    {
-        $user = User::find($request->userid);
-        $user->name = $request->name;
-        $user->section_id = $request->section;
-        $user->job_title_id = $request->jobTitle;
-        $user->save();
-    }
-
     public function deleteDepUserById($id)
     {
         User::find($id)->delete();
@@ -180,15 +141,6 @@ class UserService
         $user->save();
     }
 
-    public function changeDepAdmin($request)
-    {
-        $user = User::find($request->userid);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->department_id = $request->department;
-        $user->save();
-    }
-
     public function createNewDepartment($department)
     {
         return Department::create([
@@ -220,21 +172,9 @@ class UserService
 
     public function depANDSec()
     {
-        return Department::where('company_id',Auth::user()->company_id)
+        return Department::where('company_id', Auth::user()->company_id)
             ->with('sections')
             ->get();
-    }
-
-    public function deleteDepartment($id)
-    {
-        $dep = Department::where('id', $id)->with('users')->first();
-
-        // 部に紐づいているユーザーがいる場合は削除不可
-        if(count($dep->users) > 0) {
-            return false;
-        } else {
-            $dep->delete();
-        }
     }
 
 }

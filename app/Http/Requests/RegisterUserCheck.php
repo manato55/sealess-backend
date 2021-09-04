@@ -26,7 +26,6 @@ class RegisterUserCheck extends FormRequest
      */
     public function rules(Request $request)
     {
-
         $route = $this->route()->getName();
 
         $rules = [];
@@ -68,8 +67,9 @@ class RegisterUserCheck extends FormRequest
                 $rules['name'] = [
                     'required',
                     'max:30',
-                    Rule::unique('users')->where(function ($q) {
-                        return $q->where('company_id', Auth::user()->company_id);
+                    Rule::unique('users')->where(function ($q) use($request) {
+                        return $q->where('company_id', Auth::user()->company_id)
+                            ->where('id','!=',$request->userid);
                     })
                 ];
                 $rules['email'] = ['required', 'email', 'max:100', 'unique:users,email,'.$request->userid.',id'];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Owner;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -33,9 +34,13 @@ class LoginController extends Controller
 
         // 取得できない場合、パスワードが不一致の場合エラー
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'message' => [__('メールアドレスもしくはパスワードが一致しません。')],
-            ]);
+            throw new HttpResponseException(
+                response()->json([
+                    'errors'=> [
+                        'メールアドレスもしくはパスワードが一致しません。'
+                    ]
+                ], 422 )
+            );
         }
         // tokenの作成
         $token = $user->createToken($request->device_name ?? 'undefined')->plainTextToken;

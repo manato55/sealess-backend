@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\ReturnCheck;
-
-
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProgressController extends Controller
 {
@@ -33,7 +32,12 @@ class ProgressController extends Controller
 
     public function fetchPaginatedTaskInProgress($offset)
     {
-        return $this->progressService->paginatedTask($offset);
+        $task = $this->progressService->paginatedTask($offset);
+        if(count($task) > 0) {
+            return $task;
+        } else {
+            throw new HttpResponseException(response()->json(null, 404));
+        }
     }
 
     public function fetchDetailTask($id)

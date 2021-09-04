@@ -32,7 +32,7 @@ Route::get('password-token-check/{token}', [RegisterController::class, 'password
 Route::post('official-registry', [RegisterController::class, 'officialRegistryOrdinaryUser'])->name('officalRegistry');
 Route::post('official-admin-registry', [CompanyController::class, 'officialAdminRegistry'])->name('officalAdminRegistry');
 Route::post('login', [LoginController::class, 'login']);
-Route::get('admin-token-check/{token}', [CompanyController::class, 'tokenCheck']);
+Route::get('admin-token-check/{token}', [CompanyController::class, 'adminTokenCheck']);
 
 
 
@@ -40,17 +40,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::namespace('Api')->group(function () {
         Route::post('logout', [LoginController::class, 'logout']);
         Route::get('me', [UserController::class, 'me']);
-        Route::post('register-dep-admin', [RegisterController::class, 'registerDepAdmin'])->name('depAdmin');
-        Route::post('send-register-email', [RegisterController::class, 'sendRegisterEmail'])->name('ordinary');
         Route::get('fetch-dep-users', [UserController::class, 'fetchDepUsers']);
-        Route::post('edit-dep-user-info', [UserController::class, 'editDepUserInfo'])->name('editDepUserInfo');
         Route::delete('delete-dep-user/{id}', [UserController::class, 'deleteDepUser']);
         Route::delete('delete-dep-admin-user/{id}', [UserController::class, 'deleteDepAdminUser']);
-        Route::delete('delete-dep/{id}', [UserController::class, 'deleteDep']);
         Route::get('fetch-admin-users', [UserController::class, 'fetchAdminUsers']);
         Route::get('fetch-normal-users/{department}', [UserController::class, 'fetchNormalUsers']);
         Route::post('change-department', [UserController::class, 'changeDepartment'])->name('changeDep');
-        Route::post('change-dep-admin-info', [UserController::class, 'changeDepAdminInfo'])->name('changeDepAdminInfo');
         Route::post('department-registry', [UserController::class, 'departmentRegistry'])->name('departmentRegistry');
         Route::post('section-registry', [UserController::class, 'sectionRegistry'])->name('sectionRegistry');
         Route::post('job-title-registry', [UserController::class, 'jobTitleRegistry'])->name('jobTitleRegistry');
@@ -58,11 +53,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('fetch-dep-sec', [UserController::class, 'fetchDepartmentANDSection']);
 
         Route::prefix('company')->group(function () {
+            Route::post('edit-normal-user-info', [CompanyController::class, 'editNormalUserInfo'])->name('editDepUserInfo');
+            Route::post('send-register-email', [CompanyController::class, 'sendRegisterEmail'])->name('ordinary');
+            Route::post('register-dep-admin', [CompanyController::class, 'registerDepAdmin'])->name('depAdmin');
+            Route::post('change-dep-admin-info', [CompanyController::class, 'changeDepAdminInfo'])->name('changeDepAdminInfo');
             Route::post('register-company', [CompanyController::class, 'registerCompany'])->name('companyRegister');
             Route::post('change-dep-info', [CompanyController::class, 'changeDepName'])->name('changeDepName');
             Route::post('change-sec-info', [CompanyController::class, 'changeSecName'])->name('changeSecName');
             Route::post('change-job-title', [CompanyController::class, 'changeJobTitle'])->name('changeJobTitle');
             Route::delete('delete-sec/{id}', [CompanyController::class, 'deleteSection']);
+            Route::delete('delete-dep/{id}', [CompanyController::class, 'deleteDep']);
             Route::delete('delete-job-title/{id}', [CompanyController::class, 'deleteJobTitle'])->name('deleteJobTitle');
             Route::get('fetch-job-title', [CompanyController::class, 'fetchJobTitle']);
             Route::get('fetch-sections/{id}', [CompanyController::class, 'fetchSections']);
@@ -81,7 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('fetch-task', [ReturnedController::class, 'fetchReturnedTask']);
             Route::get('fetch-detail/{id}', [ReturnedController::class, 'fetchReturnedDetail']);
             Route::post('remove-file', [ReturnedController::class, 'removeFile']);
-            Route::post('remove-task', [ReturnedController::class, 'removeTask']);
+            Route::delete('remove-task/{id}', [ReturnedController::class, 'removeTask']);
         });
 
         Route::prefix('completed')->group(function () {
@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('route')->group(function () {
             Route::post('register-route', [RoutedController::class, 'registerRoute'])->middleware('trim');
-            Route::post('remove-registered-route', [RoutedController::class, 'removeRegisteredRoute']);
+            Route::delete('remove-registered-route/{id}', [RoutedController::class, 'removeRegisteredRoute']);
             Route::post('agent-setting', [RoutedController::class, 'agentSetting']);
             Route::post('agent-status-2false', [RoutedController::class, 'agentStatus2False']);
             Route::post('agent-status-2true', [RoutedController::class, 'agentStatus2True']);
